@@ -1,0 +1,53 @@
+<header>
+    <div class="logosec" style="float: left;">
+      <div class="logo">Fuel Management System</div>
+    </div>
+    <div class="searchbar">
+      <img src="static\imgs\logo.png" class="icn" alt="logo">
+    </div>
+    <div class="message">
+      Welcome! <b>Name: </b> {{ user.name }} 
+               <b>Email: </b> {{ user.email }}
+    </div>
+  </header>
+  
+  <div class="main-container"> 
+    <div class="navcontainer">
+      <nav class="nav">
+        <div class="nav-upper-options">
+          <div class="nav-option option1" onclick="openContent('dashboard')">
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210182148/Untitled-design-(29).png" class="nav-img" alt="dashboard">
+            <h4>Dashboard</h4>
+          </div>
+  
+          <div class="nav-option option6" onclick="toggleSubmenu('settingsSubmenu')">
+            {% if user.is_super_admin %}
+                <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183320/4.png" class="nav-img" alt="settings">
+                <h4>Settings</h4>
+            {% elif user.is_admin %}
+                <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183320/4.png" class="nav-img" alt="settings">
+                <h4>Settings</h4>
+            {% endif %}
+          </div>
+  
+          <div id="settingsSubmenu" class="submenu">
+            {% if user.is_super_admin %}
+                <!-- Add Company Button -->
+                <button class="btn btn-primary submenu-option" onclick="window.location.href='/add_company'">
+                    Add a Company
+                </button>
+                <div class="submenu-option" onclick="openContent('setappurl')">Application Settings</div>
+            {% elif user.is_admin %}
+                <div class="submenu-option" onclick="openContent('addUserAccounts')">Add a User</div>
+                <div class="submenu-option" onclick="openContent('setappurl')">Application Settings</div>
+            {% endif %}
+          </div>
+  
+          <div class="nav-option logout">
+            <a href="/logout" class="button2">Logout</a>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </div>
+  

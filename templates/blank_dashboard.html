@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Dashboard</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+  <link rel="stylesheet" href="/static/css/responsive.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logosec" style="float: left;">
+      <div class="logo">Fuel Management System</div>
+    </div>
+    <div class="searchbar">
+      <img src="/static/imgs/logo.png" class="icn" alt="logo">
+    </div>
+    <div class="message">
+      Welcome! <b>Name: </b> {{ user.name }} 
+               <b>Email: </b> {{ user.email }}
+    </div>
+  </header>
+
+  <div class="main-container"> 
+    <div class="navcontainer">
+      <nav class="nav">
+        <div class="nav-upper-options">
+          <div class="nav-option option1" onclick="openContent('dashboard')">
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210182148/Untitled-design-(29).png" class="nav-img" alt="dashboard">
+            <h4>Dashboard</h4>
+          </div>
+          <div class="nav-option option2" onclick="openContent('vehicles')">
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183322/9.png" class="nav-img" alt="vehicles">
+            <h4>Vehicles</h4>
+          </div>
+          <div class="nav-option option3" onclick="openContent('fuelReport')">
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183320/5.png" class="nav-img" alt="fuel report">
+            <h4>Fuel Report</h4>
+          </div>
+          <div class="nav-option option4" onclick="openContent('institution')">
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183321/6.png" class="nav-img" alt="institution">
+            <h4>Institution</h4>
+          </div>
+          <div class="nav-option option5" onclick="openContent('profile')">
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183323/10.png" class="nav-img" alt="profile">
+            <h4>Profile</h4>
+          </div>
+          <div class="nav-option option6" onclick="toggleSubmenu('settingsSubmenu')">
+            {% if user.is_super_admin or user.is_admin %}
+                <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183320/4.png" class="nav-img" alt="settings">
+                <h4>Settings</h4>
+            {% endif %}
+          </div>
+          
+          <div id="settingsSubmenu" class="submenu">
+            {% if user.is_super_admin %}
+                <div class="submenu-option" onclick="openContent('settings')">Add a Company</div>
+                <div class="submenu-option" onclick="openContent('setappurl')">Application Settings</div>
+            {% elif user.is_admin %}
+                <a class="submenu-option" href="{{ url_for('add_user') }}">Add a User</a>
+                <div class="submenu-option" onclick="openContent('setappurl')">Application Settings</div>
+            {% endif %}
+          </div>
+          
+          <div class="nav-option logout">
+            <a href="/logout" class="button2">Logout</a>
+          </div>
+        </div>
+      </nav>
+    </div>
+    <div id="content" class="content-container">
+      <!-- Content will be dynamically loaded here -->
+    </div>
+  </div>
+
+  <script>
+    function toggleSubmenu(submenuId) {
+      var submenu = document.getElementById(submenuId);
+      submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
+    }
+    
+    function openContent(page) {
+      console.log('Opening page:', page);
+      var content = document.getElementById('content');
+      
+      if (page === 'addCompany') {
+        content.innerHTML = '<h2>Add a Company</h2><p>Form and details for adding a company...</p>';
+      } else if (page === 'applicationSettings') {
+        content.innerHTML = '<h2>Application Settings</h2><p>URL used to send data to the database: <strong>https://example.com/data</strong></p>';
+      } else {
+        content.innerHTML = '<h2>' + page.charAt(0).toUpperCase() + page.slice(1) + '</h2><p>Content for ' + page + ' page...</p>';
+      }
+    }
+  </script>
+
+  <div class="content">
+    <div id="dashboard" class="content-section active">
+      <div class="main">
+        <!-- Dashboard content goes here -->
+        <h2>Dashboard</h2>
+        {% if not user.is_admin %}
+        <div class="searchbar2">
+          <input type="text" placeholder="Search">
+          <div class="searchbtn">
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210180758/Untitled-design-(28).png" class="icn srchicn" alt="search-button">
+          </div>
+        </div>
+        <div class="box-container">
+          <div class="box box1">
+            <div class="text">
+              <h2 class="topic">Device Entries Logged</h2>
+            </div>
+            <img src="/static/imgs/sensor.png" alt="Views">
+          </div>
+          <div class="box box2">
+            <div class="text">
+              <h2 class="topic">Active Devices</h2>
+            </div>
+            <img src="/static/imgs/car.png" alt="likes">
+          </div>
+          <div class="box box3">
+            <div class="text">
+              <h2 class="topic-heading">320</h2>
+              <h2 class="topic">Comments</h2>
+            </div>
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210184645/Untitled-design-(32).png" alt="comments">
+          </div>
+          <div class="box box4">
+            <div class="text">
+              <h2 class="topic-heading">70</h2>
+              <h2 class="topic">Published</h2>
+            </div>
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210185029/13.png" alt="published">
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Other sections -->
+    <div id="vehicles" class="content-section">
+      <h2>Vehicles</h2>
+      <p>Details about vehicles will be displayed here.</p>
+    </div>
+    
+    <div id="fuelReport" class="content-section">
+      <h2>Fuel Report</h2>
+      <p>Fuel reports and related data will be displayed here.</p>
+    </div>
+
+    <div id="institution" class="content-section">
+      <h2>Institution</h2>
+      <p>Institution details and information will be displayed here.</p>
+    </div>
+
+    <div id="profile" class="content-section">
+      <h2>Profile</h2>
+      <p>Profile details and settings will be displayed here.</p>
+    </div>
+    
+    <div id="settings" class="content-section">
+      <h2>Settings</h2>
+      <p>Settings details will be displayed here.</p>
+    </div>
+    
+    <div id="addUser" class="content-section">
+      <h2>Add User</h2>
+      <p>Form for adding a user will be displayed here.</p>
+    </div>
+    
+    <div id="setappurl" class="content-section">
+      <h2>Application Settings</h2>
+      <p>Application URL configuration options will be displayed here.</p>
+    </div>
+  </div>
+
+  <script>
+    let zoomLevel = 10;
+    let jsonDataParsed = null;
+
+    function drawChart(data, layout) {
+      $('#loadingMessage').hide();
+      Plotly.newPlot('plotly-chart', data, layout);
+    }
+
+    function filterByDateRange(startDate, endDate) {
+      if (!jsonDataParsed) return;
+
+      var filteredData = {
+        labels: [],
+        volumeLiters: []
+      };
+
+      for (var i = 0; i < jsonDataParsed.labels.length; i++) {
+        var currentDate = jsonDataParsed.labels[i].split(" ")[0].split('/').reverse().join('-');
+        if (currentDate >= startDate && currentDate <= endDate) {
+          filteredData.labels.push(jsonDataParsed.labels[i]);
+          filteredData.volumeLiters.push(jsonDataParsed.volumeLiters[i]);
+        }
+      }
+    }
+  </script>
+
+  <div class="report-container">
+    <div class="report-header">
+      <h1 class="recent-Articles">Recent Activity</h1>
+    </div>
+    <br>
+    <div id="google-chart-container">
+      <button id="stop-simulation" class="styled-button1">Stop</button>
+      <button id="start-simulation" class="styled-button2">Start Simulation</button>
+      <h2>Fuel Consumption Line Chart</h2>
+      <br>
+      <input type="date" id="startDatePicker" title="Select Start Date">
+      <input type="date" id="endDatePicker" title="Select End Date">
+      <button id="filterByDateRangeBtn" class="styled-button">Filter by Date Range</button>
+      <input type="time" id="startTimePicker" title="Select Start Time" step="1" disabled>
+      <input type="time" id="endTimePicker" title="Select End Time" step="1" disabled>
+      <button id="filterByTimeRangeBtn" class="styled-button" disabled>Filter by Time Range</button>
+      <button class="styled-button">Go to Latest</button>
+      <button id="sortByHourBtn" class="styled-button" style="display: none;">Sort by Hour</button>
+      <button id="sortByMinuteBtn" class="styled-button" style="display: none;">Sort by Minute</button>
+      <div id="currentDateTime" style="font-weight: bold; margin-top: 10px;"></div>
+    </div>
+
+    <div id="loadingMessage" class="loading-message">Loading...</div>
+    <div id="plotly-chart" style="width: 100%; height: 400px;"></div>
+    <div id="noDataMessage" class="no-data-message">No data available for the selected range.</div>
+  </div>
+
+  <div id="sensorDataReceiver" class="content-section">
+    <h2>Sensor Data Receiver</h2>
+    <div class="table-responsive">
+      <div id="seachtab">
+        <button type="submit">Search</button>
+      </div>
+      <div id="filtertab" class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Filter
+        </button>
+        <div class="dropdown-menu" aria-labelledby="filterDropdown"></div>
+      </div>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Full Address</th>
+            <th>Sensor Data</th>
+            <th>Volume (Liters)</th>
+            <th>Vehicle No</th>
+            <th>QR Code</th>
+            <th>PDF</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data rows will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

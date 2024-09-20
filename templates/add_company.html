@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+        display: flex;
+        margin: 0;
+        height: 100vh;
+        font-family: Arial, sans-serif;
+    }
+    .main-container {
+        flex-grow: 1; /* Take up the remaining space */
+        margin-left: 250px; /* Offset for sidebar width */
+        padding: 20px;
+    }
+    .navcontainer {
+        width: 250px; /* Adjust this value as needed */
+        background-color: #fff;
+        border-right: 1px solid #ddd;
+        height: 100vh; /* Full viewport height */
+        position: fixed; /* Keep it fixed on the side */
+        overflow-y: auto; /* Enable vertical scrolling if needed */
+      }
+      
+    .nav {
+      display: flex;
+      flex-direction: column;
+    }
+    .nav-upper-options {
+      display: flex;
+      flex-direction: column;
+    }
+    .nav-option {
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid #ddd;
+    }
+    .nav-img {
+      width: 30px;
+      height: 30px;
+    }
+    .submenu {
+      display: none;
+      padding: 10px;
+    }
+    .btn-primary {
+      margin-bottom: 10px;
+    }
+    .table-container {
+      margin-top: 20px;
+    }
+    .table-responsive {
+      overflow-x: auto;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 34px;
+      height: 20px;
+    }
+    .switch input { 
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 12px;
+      width: 12px;
+      border-radius: 50%;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+    }
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+    input:checked + .slider:before {
+      transform: translateX(14px);
+    }
+    .slider.round {
+      border-radius: 34px;
+    }
+    .slider.round:before {
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  
+    <div class="navcontainer">
+      <nav class="nav">
+        <div class="nav-upper-options">
+          <div class="nav-option option1" onclick="openContent('dashboard')">
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210182148/Untitled-design-(29).png" class="nav-img" alt="dashboard">
+            <h4>Dashboard</h4>
+          </div>
+          <div class="nav-option option6" onclick="toggleSubmenu('settingsSubmenu')">
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183320/4.png" class="nav-img" alt="settings">
+            <h4>Settings</h4>
+          </div>
+        </div>
+        <div id="settingsSubmenu" class="submenu">
+          <button class="btn btn-primary submenu-option" onclick="window.location.href='/add_company'">
+            Add a Company
+          </button>
+          <div class="submenu-option" onclick="openContent('setappurl')">Application Settings</div>
+        </div>
+        <button class="btn btn-primary mb-3" type="button" data-toggle="collapse" data-target="#signupFormContainer" aria-expanded="false" aria-controls="signupFormContainer">
+          Add a Company
+        </button>
+    </div>
+    <div class="main-container"> 
+        <div class="collapse" id="signupFormContainer">
+          <div class="container mt-4">
+            <h2 class="text-center mb-4">Add Company Details</h2>
+            <form id="signupForm" action="/add_company" method="POST">
+              <div class="form-group">
+                <label for="name">Company Name:</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter company name" name="name" required>
+              </div>
+              <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter company email" name="email" required>
+              </div>
+              <div class="form-group">
+                <label for="pwd">Password:</label>
+                <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="password" required>
+              </div>
+              <div class="form-group">
+                <label for="is_admin">Is Admin (0-User, 1-Admin):</label>
+                <input type="number" class="form-control" id="is_admin" placeholder="Enter role" name="is_admin" min="0" max="1" required>
+              </div>
+              <button type="submit" class="btn btn-dark">Submit</button>
+              <a href="/login" class="btn btn-primary ml-2">Login</a>
+              <p id="errorMessage" class="text-danger mt-3" style="display: none;">Please provide all required details to register.</p>
+            </form>
+          </div>
+        </div>
+        <div class="container table-container mt-5">
+          <h3 class="text-center mb-4">Current Companies</h3>
+          <div class="table-responsive">
+            <table id="usersTable" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Admin</td>
+                  <td>admin@gmail.com</td>
+                  <td>
+                    <select onchange="updateUserRole(1, this.value === '1')">
+                      <option value="0">User</option>
+                      <option value="1" selected>Admin</option>
+                    </select>
+                  </td>
+                  <td>
+                    <label class="switch">
+                      <input type="checkbox" checked onchange="updateUserStatus(1, this.checked)">
+                      <span class="slider round"></span>
+                    </label>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    async function loadUsers() {
+        console.log('Loading users...'); // Log start of function
+    
+        try {
+            const response = await fetch('/api/users');
+            console.log('API Response Status:', response.status); // Log response status
+            const data = await response.json();
+    
+            console.log('Users Data:', data); // Log the data received
+    
+            const tableBody = document.querySelector('#usersTable tbody');
+            tableBody.innerHTML = ''; // Clear the table body
+    
+            data.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>
+                        <select onchange="updateUserRole(${user.id}, this.value === '1')">
+                            <option value="0" ${user.is_admin === 0 ? 'selected' : ''}>User</option>
+                            <option value="1" ${user.is_admin === 1 ? 'selected' : ''}>Admin</option>
+                        </select>
+                    </td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" ${user.status ? 'checked' : ''} 
+                                onchange="updateUserStatus(${user.id}, this.checked)">
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    }
+
+    document.getElementById('signupForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevent the default form submission
+    
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries()); // Convert FormData to a plain object
+    
+        try {
+            const response = await fetch('/add_company', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded' // Use form encoding
+                },
+                body: new URLSearchParams(data).toString() // Convert object to URLSearchParams
+            });
+    
+            const result = await response.json(); // Parse JSON response
+    
+            console.log('Response Status:', response.status);
+            console.log('Response Data:', result);
+    
+            if (response.ok) {
+                loadUsers(); // Reload users list
+                document.getElementById('signupForm').reset(); // Clear the form
+                document.getElementById('errorMessage').style.display = 'none'; // Hide error message
+            } else {
+                document.getElementById('errorMessage').style.display = 'block'; // Show error message
+                document.getElementById('errorMessage').textContent = result.error || 'Please provide all required details to register.';
+            }
+        } catch (error) {
+            console.error('Error adding company:', error);
+        }
+    });
+    
+
+    async function updateUserStatus(userId, isActive) {
+        try {
+            await fetch(`/api/users/${userId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: isActive }),
+            });
+            console.log('User status updated');
+        } catch (error) {
+            console.error('Error updating user status:', error);
+        }
+    }
+
+    async function updateUserRole(userId, isAdmin) {
+        try {
+            await fetch(`/api/users/${userId}/role`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ is_admin: isAdmin ? 1 : 0 }),
+            });
+            console.log('User role updated');
+            loadUsers(); // Reload users list to reflect the changes
+        } catch (error) {
+            console.error('Error updating user role:', error);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadUsers);
+
+    function openContent(contentId) {
+        // Your implementation for showing/hiding content
+    }
+
+    function toggleSubmenu(submenuId) {
+        const submenu = document.getElementById(submenuId);
+        submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
+    }
+</script>
+
+
+
+
+</body>
+</html>
